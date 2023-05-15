@@ -8,9 +8,20 @@ import 'package:bloc_app/screens/home_page.dart';
 import 'package:bloc_app/states/workout_states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 
 
-void main()=>runApp(const WorkoutTime());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final storage = await HydratedStorage.build(
+    storageDirectory: await getApplicationDocumentsDirectory()
+  );
+  HydratedBlocOverrides.runZoned(
+    () => runApp(const WorkoutTime()),
+    storage: storage
+  );
+}
 
 
 class WorkoutTime extends StatelessWidget {
@@ -27,21 +38,7 @@ class WorkoutTime extends StatelessWidget {
           bodyText2: TextStyle(color: Color.fromARGB(155, 66, 74, 9))
         )
       ),
-      home: /*BlocProvider<WorkoutsCubit>(
-        create: (context){
-           WorkoutsCubit workoutsCubit =  WorkoutsCubit();
-           if(workoutsCubit.state.isEmpty){
-              workoutsCubit.getWorkouts();
-           }
-          return workoutsCubit;
-        },
-        child: BlocBuilder<WorkoutsCubit, List<Workout>>(
-          builder: (context, state) {
-            return const HomePage();
-          },
-        )
-      ),*/
-      MultiBlocProvider(
+      home: MultiBlocProvider(
         providers: [
           BlocProvider<WorkoutsCubit>(
             create: (context){
@@ -61,7 +58,7 @@ class WorkoutTime extends StatelessWidget {
             if(state is WorkoutInitial){
               return const HomePage();
             }else if(state is WorkoutEditing){
-              return EditWorkoutPage();
+              return const EditWorkoutPage();
             }
             return Container();
           },
