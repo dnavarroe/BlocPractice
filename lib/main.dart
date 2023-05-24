@@ -5,6 +5,7 @@ import 'package:bloc_app/blocs/workouts_cubit.dart';
 import 'package:bloc_app/models/workout.dart';
 import 'package:bloc_app/screens/edit_workout_page.dart';
 import 'package:bloc_app/screens/home_page.dart';
+import 'package:bloc_app/screens/workout_in_progress.dart';
 import 'package:bloc_app/states/workout_states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -60,7 +61,7 @@ class WorkoutTime extends StatelessWidget {
             }else if(state is WorkoutEditing){
               return const EditWorkoutPage();
             }
-            return Container();
+            return  WorkoutProgress();
           },
         ),
       )
