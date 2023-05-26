@@ -43,6 +43,18 @@ class WorkoutProgress extends StatelessWidget {
     return BlocConsumer<WorkoutCubit, WorkoutState>(
       builder: (context, state) {
         final stats = _getStats(state.workout!, state.elapsed!);
+        int workoutTotal = state.workout!.getTotal();
+        Exercise exercise = state.workout!.getCurrentExercise(state.elapsed!);
+        int exerciseElapsed = state.elapsed! - exercise.startTime!;
+
+        int exerciseRemaining = exercise.prelude! - exerciseElapsed;
+        bool isPrelude = exerciseElapsed < exercise.prelude!;
+        int exerciseTotal = isPrelude ? exercise.prelude! : exercise.duration!;
+
+        if(!isPrelude){
+          exerciseElapsed   -= exercise.prelude!;
+          exerciseRemaining += exercise.duration!;
+        }
         return Scaffold(
           appBar: AppBar(
             title: Text(state.workout!.title.toString()),
@@ -57,7 +69,7 @@ class WorkoutProgress extends StatelessWidget {
                 LinearProgressIndicator(
                   backgroundColor: Colors.blue[100],
                   minHeight: 10,
-                  value: stats['workoutProgress'],
+                  value: state.elapsed!/state.workout!.getTotal(),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 30),
@@ -65,14 +77,14 @@ class WorkoutProgress extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        formatTime(stats['workoutElapsed'], true)
+                        formatTime(state.elapsed!, true)
                       ),
                       DotsIndicator(
-                        dotsCount: stats['totalExercise'],
-                        position: stats['currentExerciseIndex'],
+                        dotsCount: state.workout!.exercises!.length,
+                        position: state.workout!.getCurrentExercise(state.elapsed!).index!,
                       ),
                       Text(
-                        '-${formatTime(stats['workoutRemaning'], true)}'
+                        '-${formatTime(state.workout!.getTotal()-state.elapsed!, true)}'
                       )
                     ],
                   ),
@@ -97,10 +109,10 @@ class WorkoutProgress extends StatelessWidget {
                           width: 220,
                           child: CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              stats['isPrelude']?Colors.red:Colors.blue
+                              isPrelude?Colors.red:Colors.blue
                             ),
                             strokeWidth: 25,
-                            value: stats['exerciseProgress'],
+                            value: exerciseElapsed/exerciseTotal,
                           ),
                         ),
                       ),
